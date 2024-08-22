@@ -1,0 +1,58 @@
+{%with messages = get_flashed_messages()%}
+{%if messages %}
+<script type="text/javascript">
+	alert("{{messages[-1]}}");
+</script>
+{%endif%}
+{%endwith%}
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>분석 결과</title>
+
+    <style>
+        .error_report_btn {
+            margin: 1%;
+            padding: 1% 5%;
+            width: 30%;
+            height: 50px;
+            font-size: 18px;
+            font-weight: bold;
+            color: #ffffff;
+            background: #e0557d;
+            border: 1px solid;
+            border-color: #c4c4c4 #d1d1d1 #d4d4d4;
+            border-radius: 2px 2px 2px 2px;
+            outline: 5px solid #eff4f7;
+            -moz-outline-radius: 3px;
+            -webkit-box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.12);
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.12);
+        }
+
+        .error_report_btn:hover {
+            background-color: #CF4E73;
+            outline-color: #dedede;
+        }
+
+        .error_report_btn:active {
+            background-color: #ED5A84;
+        }
+    </style>
+
+    <script>
+        function errorPopup(id) {
+            url = '/process/error_report/' + id.toString();
+            window.open(url, "error", "width=600, height=480, left=0, top=0");
+		}
+    </script>
+</head>
+<body>
+    <div style="text-align: center">
+        <img src="data:image/png;base64,{{ image.result }}" alt="image" width="1000" height="550">
+        <br>
+        <button name="err_report" id="err_report" class="error_report_btn" onclick="errorPopup({{ image.id }})"> 오류 신고 </button>
+    </div>
+</body>
+</html>

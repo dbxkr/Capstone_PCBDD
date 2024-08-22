@@ -1,0 +1,147 @@
+{%with messages = get_flashed_messages()%}
+{%if messages %}
+<script type="text/javascript">
+	alert("{{messages[-1]}}");
+</script>
+{%endif%}
+{%endwith%}
+
+<!DOCTYPE html>
+<html lang="ko">
+<meta charset="UTF-8">
+
+<head>
+	<link href="style.css" rel="stylesheet" type="text/css">
+	<link rel="stylesheet" href="{{ url_for('static', filename='bootstrap.min.css') }}">
+	<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+	<title> PCB 결함 탐지 </title>
+	
+	<script>
+        var isLoad = false;
+
+		function showImage(event) {
+			var imageFile = event.target.files[0];
+			var imageObjectURL = URL.createObjectURL(imageFile);
+			document.getElementById('image').src = imageObjectURL;
+			document.getElementById('image').style.display = "block";
+			document.getElementById('delete-button').style.display = "block";
+            isLoad = true;
+		}
+
+		function loadImage() {
+			var url = document.getElementById('image-url').value;
+			document.getElementById('image').src = url;
+			document.getElementById('image').style.display = "block";
+			document.getElementById('delete-button').style.display = "block";
+            isLoad = true;
+		}
+
+		function capturedPopup() {
+            window.open("{{ url_for('process.captured') }}", "captured", "width=600, height=1000, left=0, top=0");
+		}
+	</script>
+</head>
+
+<body>
+	{% if g.user %}
+	<div class="outline">
+		<a class="title" href="/"> 컴퓨터 비전 기반 PCB 결함 탐지 </a>
+		<div class="inline">
+			<p class="margin1 link-box">
+				<a href="https://youtu.be/U6IT4eSH8gA" class="blue-link" target="_blank">
+					실제 예제 보기
+				</a>
+				|
+				<a href="https://github.com/choguitar/capstone" class="blue-link" target="_blank">
+					GitHub에서 보기
+				</a>
+			</p>
+
+			<p class="tab_menu">
+				<a class="mode_btn" href="{{ url_for('process.img') }}"><button type="img_btn" class="mini-button" disabled> 이미지 첨부
+					</button></a>
+				<a class="mode_btn" href="{{ url_for('process.cam') }}"><button type="cam_btn" class="mini-button"> 웹캠 연동 </button></a>
+			</p>
+			<form method="post" enctype="multipart/form-data">
+				<div class="option-box first">
+					<div class="option-right">
+						<input type="url" id="image-url" name="image-url" placeholder="URL 입력" style="height:40px;">
+                        <input type="button" onclick="loadImage()" class="option-left" name="type" value="링크 사진 불러오기" style="height:70px; margin-top:20px;">
+                        <div class="option-left">
+							<label for="image-file" name="image-file" accept="image/*" onchange="showImage(event)"
+								style="width:200px">
+								내 PC에서 가져오기
+							</label>
+						</div>
+						<div class="option-right-small" style="display: none">
+							또는 파일 업로드:
+							<input type="file" id="image-file" name="image-file" accept="image/*"
+								onchange="showImage(event)">
+						</div>
+					</div>
+
+                    <br>
+                    <select name="PCB_type" id="PCB_type"
+                    style="margin-top:20px; height:50px; border: 5px solid #7dc9e2; border-radius: 0.3em;">
+                        <option value="0"> TM_Chassis_Single </option>
+                        <option value="1"> TM_Chassis_MULT </option>
+                        <option value="2"> TM-A_Chassis_Single </option>
+                        <option value="3"> TM-A_Chassis_MULT </option>
+                    </select>
+
+					<img id="image" style="display: none; margin: auto;" width="500" height="auto" src="" alt="">
+
+					<p id="error-message" style="display: none; color: red;">Error loading image.</p>
+				</div>
+
+				<input type="submit" id="analyze-button" name="type" class="split-submit" value="저장"
+					style="margin-bottom:20px; margin-right:10px;">
+				<input type="submit" id="check-button" name="type" class="split-submit" value="조회"
+					style="margin-bottom:20px" onclick="capturedPopup()">
+			</form>
+
+			<div
+				style="background-color: rgb(255, 255, 255); border: 1px solid rgb(204, 204, 204); box-shadow: rgba(0, 0, 0, 0.2) 2px 2px 3px; position: absolute; transition: visibility 0s linear 0.3s, opacity 0.3s linear 0s; opacity: 0; visibility: hidden; z-index: 2000000000; left: 0px; top: -10000px;">
+				<div
+					style="width: 100%; height: 100%; position: fixed; top: 0px; left: 0px; z-index: 2000000000; background-color: rgb(255, 255, 255); opacity: 0.05;">
+				</div>
+				<div class="g-recaptcha-bubble-arrow"
+					style="border: 11px solid transparent; width: 0px; height: 0px; position: absolute; pointer-events: none; margin-top: -11px; z-index: 2000000000;">
+				</div>
+				<div class="g-recaptcha-bubble-arrow"
+					style="border: 10px solid transparent; width: 0px; height: 0px; position: absolute; pointer-events: none; margin-top: -10px; z-index: 2000000000;">
+				</div>
+				<div style="z-index: 2000000000; position: relative;"><iframe
+						title="recaptcha challenge expires in two minutes" src="./waifu2x_files/bframe.html"
+						name="c-c5lcwcub9i78" frameborder="0" scrolling="no"
+						sandbox="allow-forms allow-popups allow-same-origin allow-scripts allow-top-navigation allow-modals allow-popups-to-escape-sandbox"
+						style="width: 100%; height: 100%;"></iframe></div>
+			</div>
+
+			<div
+				style="background-color: rgb(255, 255, 255); border: 1px solid rgb(204, 204, 204); box-shadow: rgba(0, 0, 0, 0.2) 2px 2px 3px; position: absolute; transition: visibility 0s linear 0.3s, opacity 0.3s linear 0s; opacity: 0; visibility: hidden; z-index: 2000000000; left: 0px; top: -10000px;">
+				<div
+					style="width: 100%; height: 100%; position: fixed; top: 0px; left: 0px; z-index: 2000000000; background-color: rgb(255, 255, 255); opacity: 0.05;">
+				</div>
+				<div class="g-recaptcha-bubble-arrow"
+					style="border: 11px solid transparent; width: 0px; height: 0px; position: absolute; pointer-events: none; margin-top: -11px; z-index: 2000000000;">
+				</div>
+				<div class="g-recaptcha-bubble-arrow"
+					style="border: 10px solid transparent; width: 0px; height: 0px; position: absolute; pointer-events: none; margin-top: -10px; z-index: 2000000000;">
+				</div>
+				<div style="z-index: 2000000000; position: relative;"><iframe
+						title="recaptcha challenge expires in two minutes" src="./waifu2x_files/bframe.html"
+						name="c-c5lcwcub9i78" frameborder="0" scrolling="no"
+						sandbox="allow-forms allow-popups allow-same-origin allow-scripts allow-top-navigation allow-modals allow-popups-to-escape-sandbox"
+						style="width: 100%; height: 100%;"></iframe></div>
+			</div>
+		</div>
+	</div>
+	<p> <a href="{{ url_for('auth.logout') }}"> {{ g.user.username }} (로그아웃) </a> </p>
+	{% else %}
+	<p> <a href="{{ url_for('auth.login') }}"> 로그인 </a> </p>
+	{% endif %}
+	<div style="margin-top: 10%; font-size: 10px">2023년 1학기 세종대학교 캡스톤 5조 팀 프로젝트</div>
+</body>
+
+</html>

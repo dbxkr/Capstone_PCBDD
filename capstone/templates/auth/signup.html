@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="{{ url_for('static', filename='bootstrap.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <title> PCB 결함 탐지 - 회원가입 </title>
+</head>
+
+<body>
+    {% block content %}
+    <div class="outline">
+        <h1 class="title"> 컴퓨터 비전 기반 PCB 결함 탐지 </h1>
+        <div class="inline">
+            <form method="post">
+                {{ form.csrf_token }}
+
+                {% if form.errors %}
+                <div class="alert alert-danger" role="alert">
+                    {% for field, errors in form.errors.items() %}
+                    <p>
+                        {% for error in errors %}
+                        {{ error }}
+                        {% endfor %}
+                    </p>
+                    {% endfor %}
+                </div>
+                {% endif %}
+                <!-- flash 오류 -->
+                {% for message in get_flashed_messages() %}
+                <div class="alert alert-danger" role="alert">
+                    {{ message }}
+                </div>
+                {% endfor %}
+
+                <p style="color: gray; font-size: small; margin:10px"> 이름 </p>
+                <p style="margin:0px"> <input type=text name="username" id="username"
+                        value="{{ form.username.data or '' }}" style="margin:0px; width: 200px;"> </p>
+
+                <p style="color: gray; font-size: small; margin:10px"> 이메일 </p>
+                <p style="margin:0px"> <input type=text name="email" id="email" value="{{ form.email.data or '' }}"
+                        style="margin:0px; width: 200px;"> </p>
+
+                <p style="color: gray; font-size: small; margin:10px"> 아이디 </p>
+                <p style="margin:0px"> <input type=text name="userid" id="userid" value="{{ form.userid.data or '' }}"
+                        style="margin:0px; width: 200px;"> </p>
+
+                <p style="color: gray; font-size: small; margin:10px;"> 비밀번호 </p>
+                <p style="margin:0px"> <input type=password name="password1" id="password1"
+                        value="{{ form.password1.data or '' }}" style="margin:0px; width: 200px;"> </p>
+
+                <p style="color: gray; font-size: small; margin:10px;"> 비밀번호 확인 </p>
+                <p style="margin:0px"> <input type=password name="password2" id="password2"
+                        value="{{ form.password2.data or '' }}" style="margin:0px; width: 200px;"> </p>
+
+                <!--p style="color: gray; font-size: small; margin:10px; margin-top:20px;"> 권한 </p>
+                <p style="margin:0px">
+                    <select name="authority" id="authority" style="margin:0px; width: 150px;">
+                        <option value="site_admin"> 사이트 관리자 </option>
+                        <option value="1"> 총괄 관리자 </option>
+                        <option value="2" selected> 일반 유저 </option>
+                    </select>
+                </p-->
+                <p style="margin-top:10px">
+                    <button style="width:40%" type="submit" class="submit"> 가입하기 </button>
+                </p>
+
+                <br>
+                <p> <a href="{{ url_for('auth.login') }}"> 아이디가 이미 존재합니다. </a> <!--a href="forgotpassword.html"> 비밀번호를
+                        잊어버렸어요. </a--> </p>
+            </form>
+        </div>
+    </div>
+    <div style="margin-top: 10%; font-size: 10px">2023년 1학기 세종대학교 캡스톤 5조 팀 프로젝트</div>
+    {% endblock %}
+</body>
+
+</html>

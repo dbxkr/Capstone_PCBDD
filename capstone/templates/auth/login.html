@@ -1,0 +1,56 @@
+{%with messages = get_flashed_messages()%}
+{%if messages %}
+<script type="text/javascript">
+	alert("{{messages[-1]}}");
+</script>
+{%endif%}
+{%endwith%}
+
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="{{ url_for('static', filename='bootstrap.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <title> PCB 결함 탐지 - 로그인 </title>
+</head>
+
+<body>
+    {% block content %}
+    <div class="outline">
+        <h1 class="title"> 컴퓨터 비전 기반 PCB 결함 탐지 </h1>
+        <div class="inline">
+            <form method="post">
+                {{ form.csrf_token }}
+
+                {% if form.errors %}
+                <div class="alert alert-danger" role="alert">
+                    {% for field, errors in form.errors.items() %}
+                    <p>
+                        {% for error in errors %}
+                        {{ error }}
+                        {% endfor %}
+                    </p>
+                    {% endfor %}
+                </div>
+                {% endif %}
+                <!-- flash 오류 -->
+                {% for message in get_flashed_messages() %}
+                <div class="alert alert-danger" role="alert">
+                    {{ message }}
+                </div>
+                {% endfor %}
+
+                <p><input type="text" name="userid" id="userid" value="{{ form.userid.data or '' }}" placeholder="아이디"></p>
+                <p><input type="password" name="password" id="password" value="{{ form.password.data or '' }}" placeholder="비밀번호"></p>
+                <p><button type="submit" class="submit">로그인</button></p>
+                <p> <a href="{{ url_for('auth.signup') }}"> 회원가입 </a> <!--a href="forgotpassword.html"> 비밀번호를 잊어버렸어요. </a--> </p>
+            </form>
+        </div>
+    </div>
+    <div style="margin-top: 10%; font-size: 10px">2023년 1학기 세종대학교 캡스톤 5조 팀 프로젝트</div>
+    {% endblock %}
+</body>
+
+</html>

@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="ko">
+<meta charset="UTF-8">
+
+<head>
+	<link href="style.css" rel="stylesheet" type="text/css">
+	<link rel="stylesheet" href="{{ url_for('static', filename='bootstrap.min.css') }}">
+	<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+	<title> 오류 보고 </title>
+</head>
+
+<body style="margin:auto; max-width:550px; padding:20px;">
+    {% if g.user %}
+    <table style="width:100%; border: solid 8px #0ca3d2; border-radius: 0.5em 0.5em 0.5em 0.5em;">
+        <thead style="background-color:#f3f3f3; border: solid #555; border-bottom: solid 2px; height:40px;">
+            <tr>
+                <th style="text-align:center; width:10em; margin:auto"> 이미지 번호</th>
+                <th style="text-align:center; width:10em; margin:auto"> 사용자 </th>
+                <th style="text-align:center; width:10em; margin:auto"> 내용 </th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for report in reports %}
+        <tr>
+            <td style="width:106px; margin:auto; text-align:center"> {{ report.image }} </td>
+            <td style="text-aling:center"> {{ report.user }} </td>
+            <td style="text-aling:center"> {{ report.content }} </td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    <p> <a href="{{ url_for('auth.logout') }}"> {{ g.user.username }} (로그아웃) </a> </p>
+	{% else %}
+	<p> <a href="{{ url_for('auth.login') }}"> 로그인 </a> </p>
+	{% endif %}
+	<div style="margin-top: 10%; font-size: 10px">2023년 1학기 세종대학교 캡스톤 5조 팀 프로젝트</div>
+</body>
+
+</html>

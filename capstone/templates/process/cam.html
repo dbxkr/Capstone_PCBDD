@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="ko">
+<meta charset="UTF-8">
+
+<head>
+	<link href="style.css" rel="stylesheet" type="text/css">
+	<link rel="stylesheet" href="{{ url_for('static', filename='bootstrap.min.css') }}">
+	<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+	<title> PCB 결함 탐지 </title>
+
+	<script>
+		var video = null;
+		var canvas1 = null;
+        var canvas2 = null;
+		var ctx1 = null;
+        var ctx2 = null;
+		var interval = 0;
+
+		function startVideo() {
+			video = document.getElementById("video");
+			canvas1 = document.getElementById("canvas1");
+			canvas2 = document.getElementById("canvas2");
+			ctx1 = canvas1.getContext("2d");
+			ctx2 = canvas2.getContext("2d");
+
+			if (navigator.mediaDevices.getUserMedia) {
+				navigator.mediaDevices.getUserMedia({ video: true })
+					.then(function (stream) {
+						video.srcObject = stream;
+						video.onloadedmetadata = function (e) {
+							video.play();
+						};
+
+						document.getElementById('capture').disabled = false;
+						document.getElementById('auto_apply').disabled = false;
+						document.getElementById('auto_disapply').disabled = false;
+					})
+					.catch(function (err) {
+						console.log("An error occurred: " + err);
+					});
+			}
+		}
+
+		function stopVideo() {
+			if (video) {
+				video.pause();
+				video.srcObject = null;
+
+				document.getElementById('capture').disabled = true;
+				document.getElementById('save').disabled = true;
+                document.getElementById('auto_apply').disabled = true;
+                document.getElementById('auto_disapply').disabled = true;
+			}
+
+			if (ctx1) {
+				ctx1.clearRect(0, 0, canvas1.width, canvas1.height);
+				ctx2.clearRect(0, 0, canvas2.width, canvas2.height);
+			}
+		}
+
+		function takeSnapshot() {
+			ctx1.drawImage(video, 0, 0, canvas1.width, canvas1.height);
+			ctx2.drawImage(video, 0, 0, canvas2.width, canvas2.height);
+
+			document.getElementById('analyze-button').disabled = false;
+			document.getElementById('save').disabled = false;
+            saveImage()
+		}
+
+		function saveImage() {
+			var formData = new FormData();
+            var type = document.getElementById("PCB_type");
+			formData.append('source', 'javascript');
+			formData.append('image', canvas2.toDataURL());
+            formData.append('type', type.options[type.selectedIndex].value);
+
+			var xhr = new XMLHttpRequest();
+			xhr.open('POST', '{{ url_for('process.cam') }}');
+			xhr.onload = function () {
+				if (xhr.status === 200) {
+					console.log('Image uploaded successfully.');
+				} else {
+					console.log('Failed to upload image.');
+				}
+			};
+			xhr.send(formData);
+		}
+
+		function downloadCanvas() {
+			var canvas2 = document.getElementById("canvas2");
+			var image = canvas2.toDataURL("image/png").replace("image/png", "image/octet-stream");
+			var link = document.createElement('a');
+
+			link.download = "image.png";
+			link.href = image;
+			link.click();
+		}
+
+		function takeAuto() {
+			takeSnapshot()
+			clearInterval(interval)
+			interval = setInterval(function () {
+				takeSnapshot()
+			}, document.getElementById('myInterval').value);
+
+		}
+
+		function stopAuto() {
+			clearInterval(interval)
+			interval = 0
+		}
+
+        function capturedPopup() {
+            window.open("{{ url_for('process.captured') }}", "captured", "width=600, height=1000, left=0, top=0");
+		}
+
+        function VideoHandler(self) {
+            var target = document.querySelector('body');
+            if (self.value == 'off') {
+                self.value = 'on'
+                startVideo();
+            }
+            else {
+                self.value = 'off'
+                stopVideo();
+            }
+        }
+	</script>
+</head>
+
+<body>
+	{% if g.user %}
+	<div class="outline">
+		<a class="title" href="/"> 컴퓨터 비전 기반 PCB 결함 탐지 </a>
+		<div class="inline">
+			<p class="margin1 link-box">
+				<a href="https://youtu.be/U6IT4eSH8gA" class="blue-link" target="_blank">
+					실제 예제 보기
+				</a>
+				|
+				<a href="https://github.com/choguitar/capstone" class="blue-link" target="_blank">
+					GitHub에서 보기
+				</a>
+			</p>
+
+			<p class="tab_menu">
+				<a class="mode_btn" href="{{ url_for('process.img') }}"><button type="img_btn " class="mini-button"> 이미지 첨부 </button></a>
+				<a class="mode_btn" href="{{ url_for('process.cam') }}"><button type="cam_btn" class="mini-button" style="margin-right:1px"
+						disabled> 웹캠 연동 </button></a>
+			</p>
+
+			<form method="post" enctype="multipart/form-data">
+				<input type="hidden" name="recap" id="recap_response">
+				<div class="option-box first">
+					<div>
+                        <div style="width:25%; height:60px; margin:auto;" >
+                            <p style="vertical-align:center; float:left; font-size:15px; padding-right:10px">비디오 활성화</p>
+                            <div class="wrapper" style="margin:auto; padding: 9px; text-align:center;">
+                                <input type="checkbox" id="switch" value="off" onclick="VideoHandler(this);">
+                                <label for="switch" class="switch_label">
+                                    <span class="onf_btn"></span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <select name="PCB_type" id="PCB_type" style="margin-bottom:20px; height:50px; border: 5px solid #7dc9e2; border-radius: 0.3em;">
+                            <option value="0"> TM_Chassis_Single </option>
+                            <option value="1"> TM_Chassis_MULT </option>
+                            <option value="2"> TM-A_Chassis_Single </option>
+                            <option value="3"> TM-A_Chassis_MULT </option>
+                        </select>
+                        <br>
+
+						<input type=button id="capture" value="캡쳐" class="mini-button" onclick="{takeSnapshot()}" style="margin-bottom:5px;"
+							disabled>
+						<input type=button id="save" value="저장" class="mini-button" onclick="{downloadCanvas()}" style="margin-bottom:5px;"
+							disabled>
+						<br>
+						<input type=number id="myInterval" value="300" style="width: 60px; margin-top: 20px;"> msec 마다 자동 캡쳐
+						<input type=button id="auto_apply" value="적용" onclick="{takeAuto()}" disabled>
+						<input type=button id="auto_disapply" value="비활성화" onclick="{stopAuto()}" disabled>
+					</div>
+
+					<br>
+					<input type=button id="analyze-button" type="analyze" class="submit" style="margin:auto" value="조회"
+						onclick="capturedPopup()">
+                    <input type="hidden" name="source" value="form">
+				</div>
+			</form>
+
+			<video id="video" width="640" height="360"></video><br>
+			<canvas id="canvas1" width="480" height="270"></canvas><br>
+			<canvas id="canvas2" width="4032" height="2268" style="display: none"></canvas>
+		</div>
+	</div>
+	<p> <a href="{{ url_for('auth.logout') }}"> {{ g.user.username }} (로그아웃) </a> </p>
+	{% else %}
+	<p> <a href="{{ url_for('auth.login') }}"> 로그인 </a> </p>
+	{% endif %}
+	<div style="margin-top: 10%; font-size: 10px">2023년 1학기 세종대학교 캡스톤 5조 팀 프로젝트</div>
+</body>
+
+</html>

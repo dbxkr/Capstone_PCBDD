@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="{{ url_for('static', filename='bootstrap.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <title> PCB 결함 탐지 </title>
+</head>
+
+<body>
+    {% if g.user %}
+    <div class="outline">
+        <h1 class="title"> 컴퓨터 비전 기반 PCB 결함 탐지 </h1>
+        <div class="inline">
+            <p class="margin1 link-box">
+                <a href="https://youtu.be/U6IT4eSH8gA" class="blue-link" target="_blank">
+                    실제 예제 보기
+                </a>
+                |
+                <a href="https://github.com/choguitar/capstone" class="blue-link" target="_blank">
+                    GitHub에서 보기
+                </a>
+            </p>
+
+            <p class="tab_menu">
+				<a class="mode_btn" href="{{ url_for('process.img') }}"><button type="img_btn" class="mini-button"> 이미지 첨부 </button></a>
+				<a class="mode_btn" href="{{ url_for('process.cam') }}"><button type="cam_btn" class="mini-button"> 웹캠 연동 </button></a>
+			</p>
+        </div>
+    </div>
+    <p> <a href="{{ url_for('auth.logout') }}"> {{ g.user.username }} (로그아웃) </a> </p>
+    {% else %}
+        <p> <a href="{{ url_for('auth.login') }}"> 로그인 </a> </p>
+    {% endif %}
+    <div style="margin-top: 10%; font-size: 10px">2023년 1학기 세종대학교 캡스톤 5조 팀 프로젝트</div>
+</body>
+
+</html>
